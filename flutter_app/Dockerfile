@@ -1,32 +1,29 @@
 # Stage 1: Build Flutter web app
-FROM debian:latest AS build-env
+FROM ghcr.io/cirruslabs/flutter:stable AS build-env
 
-# Install Flutter dependencies
-RUN apt-get update
-RUN apt-get install -y curl git wget unzip libgconf-2-4 gdb libstdc++6 libglu1-mesa fonts-droid-fallback lib32stdc++6 python3
-RUN apt-get clean
+# Set working directory
+WORKDIR /app
 
-# Clone Flutter repository
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
+# Copy pubspec files
+COPY pubspec.* ./
 
-# Set Flutter path
-ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
+# Get dependencies
+RUN flutter pub get
 
-# Run flutter doctor
-RUN flutter doctor -v
+# Copy the rest of the application
+COPY . .
 
-# Enable flutter web
-RUN flutter channel stable
-RUN flutter upgrade
-RUN flutter config --enable-web
-
-# Copy files to container and build
-RUN mkdir /app/
-COPY . /app/
-WORKDIR /app/
-RUN flutter build web
+# Build for web
+RUN flutter build web --release --web-renderer html
 
 # Stage 2: Create the run-time image
 FROM nginx:alpine
+
+# Copy the built web app
 COPY --from=build-env /app/build/web /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
