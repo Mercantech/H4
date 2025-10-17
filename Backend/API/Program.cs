@@ -4,14 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
-// Configure forwarded headers for reverse proxy support (Cloudflare, nginx, etc.)
-builder.Services.Configure<Microsoft.AspNetCore.HttpOverrides.ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor 
-                             | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
-});
+
 
 // Add services to the container.
 
@@ -87,7 +80,6 @@ else
     app.UseCors("AllowFlutterApp");    
 }
 
-// UseHttpsRedirection er fjernet - Cloudflare Tunnel/reverse proxy håndterer HTTPS
 
 app.UseAuthorization();
 
