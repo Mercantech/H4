@@ -10,8 +10,14 @@ COPY pubspec.* ./
 # Get dependencies
 RUN flutter pub get
 
-# Copy the rest of the application
-COPY . .
+# Copy source code (this layer will be invalidated when source changes)
+COPY lib/ ./lib/
+COPY web/ ./web/
+COPY assets/ ./assets/
+
+# Copy other necessary files
+COPY analysis_options.yaml ./
+COPY README.md ./
 
 # Build for web
 RUN flutter build web --release
