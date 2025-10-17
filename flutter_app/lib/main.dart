@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'features/weather/view_model/weather_view_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'features/weather/bloc/weather_bloc.dart';
 import 'features/weather/view/weather_page.dart';
 import 'features/infographic/view/infographic_page.dart';
 import 'core/theme/theme.dart';
@@ -12,16 +12,19 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => WeatherViewModel()),
+        // Weather BLoC - håndterer vejr-relateret state
+        BlocProvider(
+          create: (context) => WeatherBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'Vejr App',
         theme: appTheme,
+        debugShowCheckedModeBanner: false, // Fjerner DEBUG banner
         home: const MainNavigation(),
       ),
     );
@@ -61,7 +64,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info_outline),
-            label: 'MVVM',
+            label: 'BLoC',
           ),
         ],
       ),

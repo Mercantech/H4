@@ -6,9 +6,7 @@ Dette setup giver dig mulighed for at hoste alle dine apps bag en enkelt Nginx r
 
 - **`/`** → Redirect til `/flutter/`
 - **`/flutter/`** → Flutter Web App
-- **`/react/`** → React Native Web App  
 - **`/api/`** → Backend API
-- **`/health`** → Health check endpoint
 
 ## Kommandoer
 
@@ -38,22 +36,11 @@ docker-compose -f compose.prod.yaml down
 
 ## Cloudflare Tunnel Setup
 
-1. **Installer cloudflared** på din server
+1. **Installer cloudflared** på din server (Få kode af jeres underviser)
 2. **Opret tunnel** i Cloudflare dashboard
-3. **Konfigurer tunnel** til at pege på din server's port 80
-4. **Sæt custom domain** op (f.eks. `yourdomain.com`)
+3. **Konfigurer tunnel** til at pege på din server's port (I for udleveret en port af jeres underviser)
+4. **Sæt custom domain** op (f.eks. `Gruppe1.mercantec.tech`) - Det opsætter jeres underviser
 
-### Tunnel konfiguration eksempel:
-```yaml
-# ~/.cloudflared/config.yml
-tunnel: your-tunnel-id
-credentials-file: /path/to/credentials.json
-
-ingress:
-  - hostname: yourdomain.com
-    service: http://localhost:80
-  - service: http_status:404
-```
 
 ## Sikkerhed
 
@@ -62,9 +49,6 @@ ingress:
 - Alle requests går gennem Cloudflare's proxy
 - Din server behøver ikke SSL certifikater
 
-### Firewall
-- Kun port 80 skal være åben på din server
-- Alle andre porte er interne i Docker network
 
 ## Troubleshooting
 
@@ -78,7 +62,6 @@ docker-compose ps
 docker-compose logs nginx
 docker-compose logs backend
 docker-compose logs flutterweb
-docker-compose logs reactnative-web
 ```
 
 ### Test endpoints lokalt:
@@ -92,8 +75,6 @@ curl http://localhost/api/weatherforecast
 # Flutter app
 curl http://localhost/flutter/
 
-# React app
-curl http://localhost/react/
 ```
 
 ### Genstart specifik service:

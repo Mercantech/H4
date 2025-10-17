@@ -15,48 +15,64 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-## Flutter filstruktur - MVVM
-MVVM is an architectural pattern that separates a feature of an application into three parts: the Model, the ViewModel and the View. Views and view models make up the UI layer of an application. Repositories and services represent the data of an application, or the model layer of MVVM. Each of these components is defined in the next section.
-![Flutter-MVVM](./readme-Assets/MVVM.png)
+## Flutter Arkitektur - BLoC Pattern
 
+BLoC (Business Logic Component) er et arkitekturmønster der adskiller forretningslogik fra UI ved hjælp af streams og events. Mønsteret sikrer en klar separation mellem præsentationslag og business logic, hvilket gør koden meget testbar og genanvendelig.
 
+### Nøglekoncepter
 
-![Flutter-MVVM-Detailed](./readme-Assets/MVVM-Detailed.png)
+- **Events**: Input til BLoC - repræsenterer brugerhandlinger eller systemhændelser
+- **BLoC**: Behandler events og emitter states - indeholder al forretningslogik
+- **States**: Output fra BLoC - repræsenterer UI-tilstanden
+- **View**: UI-lag der lytter til states og dispatcher events
 
-## Projektstruktur (MVVM)
+```
+UI → Events → BLoC → States → UI
+```
 
-Projektet følger MVVM-arkitekturen og har følgende mappestruktur under `lib/`:
+📖 **Se [BLOC_DOCUMENTATION.md](./BLOC_DOCUMENTATION.md) for omfattende dokumentation**
+
+## Projektstruktur (BLoC)
+
+Projektet følger BLoC-arkitekturen og har følgende mappestruktur under `lib/`:
 
 ```
 lib/
   core/           # Grundlæggende konstanter, temaer og hjælpefunktioner
-    constants/    # Applikationskonstanter som farver, strenge, API-endepunkter og andre faste værdier
-    theme/        # Applikationens design-tema inklusive farver, typografi, spacing og andre visuelle konstanter
-    utils/        # Hjælpefunktioner og utility-klasser der kan bruges på tværs af hele applikationen
+    constants/    # Applikationskonstanter som farver, strenge, API-endepunkter
+    theme/        # Applikationens design-tema (farver, typografi, spacing)
+    utils/        # Hjælpefunktioner og utility-klasser
   data/           # Data-adgangslag (modeller og services)
-    models/       # Data-modeller der repræsenterer datastrukturer og business entities
+    models/       # Data-modeller (API responses, domain objekter)
                   # - API response modeller (JSON til Dart objekter)
-                  # - Database modeller (hvis der bruges lokal database)
+                  # - Database modeller (lokal database)
                   # - Domain modeller (business logic objekter)
-    services/     # Services der håndterer data-operationer og ekstern kommunikation
+    services/     # Services der håndterer data-operationer
                   # - API services (HTTP requests til backend)
                   # - Database services (CRUD operationer)
                   # - Authentication services
-                  # - File handling services
-  features/       # Funktionaliteter opdelt efter domæne/feature
-    login/
-      model/      # Modeller specifikt for login
-      view/       # UI-komponenter (Views) for login
-      view_model/ # ViewModels for login
-      widgets/    # Genanvendelige widgets for login
-    weather/
-      model/
-      view/
-      view_model/
-      widgets/
-  routing/        # Navigationslogik
-  shared/         # Delte extensions og widgets på tværs af features
-      extensions/   # Dart extensions der udvider eksisterende klasser med ny funktionalitet
-      widgets/      # Genanvendelige UI-komponenter der kan bruges på tværs af features
+  features/       # Features opdelt efter domæne (feature-first approach)
+    weather/      # Vejr feature
+      bloc/       # 🟣 BLoC komponenter for weather
+                  # - weather_bloc.dart (business logic)
+                  # - weather_event.dart (input events)
+                  # - weather_state.dart (output states)
+      model/      # Domain modeller for weather
+      view/       # UI-komponenter (Pages/Screens)
+      widgets/    # Genanvendelige widgets for weather
+    infographic/  # BLoC infografik feature
+      view/       # Infografik side med BLoC forklaring
+  routing/        # Navigationslogik og ruter
+  shared/         # Delte components på tværs af features
+    extensions/   # Dart extensions
+    widgets/      # Delte UI-komponenter
   main.dart       # Applikationens entrypoint
 ```
+
+### BLoC Fordele
+
+✅ **Klar separation** mellem UI og business logic  
+✅ **Meget testbar** - BLoC kan testes isoleret  
+✅ **Genanvendelig** - samme BLoC på tværs af platforms  
+✅ **Reaktiv** - automatisk UI opdatering ved state ændringer  
+✅ **Forudsigelig** - veldefineret dataflow

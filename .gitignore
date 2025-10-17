@@ -6,8 +6,6 @@
 .idea/
 
 # Visual Studio Code related
-.vscode/
-.vscode
 .vs
 .idea
 .cursor
