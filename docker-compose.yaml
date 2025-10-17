@@ -1,8 +1,8 @@
 services:
   backend:
     build:
-      context: ../Backend
-      dockerfile: Dockerfile
+      context: ./Backend
+      dockerfile: API/Dockerfile
     expose:
       - "5000"
     environment:
@@ -12,7 +12,7 @@ services:
 
   flutterweb:
     build:
-      context: ../flutter_app
+      context: ./flutter_app
       dockerfile: Dockerfile
     expose:
       - "80"
