@@ -44,6 +44,8 @@ builder.Services.AddCors(options =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// OpenAPI configuration will be handled by middleware
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
@@ -53,6 +55,61 @@ app.MapDefaultEndpoints();
 app.UseForwardedHeaders();
 
     app.MapOpenApi();
+    
+    // Configure OpenAPI servers based on environment
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/openapi"))
+        {
+            var originalBodyStream = context.Response.Body;
+            using var responseBody = new MemoryStream();
+            context.Response.Body = responseBody;
+
+            await next();
+
+            if (context.Response.ContentType?.Contains("application/json") == true)
+            {
+                responseBody.Seek(0, SeekOrigin.Begin);
+                var responseText = await new StreamReader(responseBody).ReadToEndAsync();
+                
+                try
+                {
+                    var openApiDoc = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonDocument>(responseText);
+                    if (openApiDoc != null)
+                    {
+                        var modifiedDoc = openApiDoc.RootElement.Clone();
+                        var modifiedJson = System.Text.Json.JsonSerializer.Serialize(modifiedDoc);
+                        
+                        // Replace HTTP URLs with HTTPS in production
+                        if (!app.Environment.IsDevelopment())
+                        {
+                            modifiedJson = modifiedJson.Replace(
+                                "http://h4-demo-api.mercantec.tech", 
+                                "https://h4-demo-api.mercantec.tech");
+                        }
+                        
+                        var modifiedBytes = System.Text.Encoding.UTF8.GetBytes(modifiedJson);
+                        context.Response.Body = originalBodyStream;
+                        context.Response.ContentLength = modifiedBytes.Length;
+                        await context.Response.Body.WriteAsync(modifiedBytes);
+                        return;
+                    }
+                }
+                catch
+                {
+                    // If JSON parsing fails, continue with original response
+                }
+            }
+            
+            responseBody.Seek(0, SeekOrigin.Begin);
+            await responseBody.CopyToAsync(originalBodyStream);
+            context.Response.Body = originalBodyStream;
+        }
+        else
+        {
+            await next();
+        }
+    });
     
     // Enable Swagger UI (klassisk dokumentation)
     app.UseSwaggerUI(options =>
