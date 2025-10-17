@@ -171,6 +171,8 @@
   },
   "active": "c5e551fa82615f4f",
   "lastOpenFiles": [
+    "Docker.md",
+    "docker-compose.yaml",
     "Docker/docker-compose.yaml",
     "flutter_app/devtools_options.yaml",
     "flutter_app/build/942448ac",
@@ -180,8 +182,6 @@
     "flutter_app/build/windows/x64/runner/flutter_app.dir/Debug/flutter_app.tlog/link-cvtres.write.1.tlog",
     "flutter_app/build/windows/x64/runner/flutter_app.dir/Debug/flutter_app.tlog/link-rc.write.1.tlog",
     "flutter_app/build/windows/x64/runner/flutter_app.dir/Debug/flutter_app.tlog/link-mt.write.1.tlog",
-    "flutter_app/build/windows/x64/runner/flutter_app.dir/Debug/flutter_app.tlog/unsuccessfulbuild",
-    "flutter_app/build/windows/x64/flutter/flutter_wrapper_app.dir/Debug/flutter_.B4AAF99E.tlog/unsuccessfulbuild",
     "flutter_app/BLOC_DOCUMENTATION.md",
     "flutter_app/WEATHER_IMPLEMENTATION.md",
     "flutter_app/README.md",
