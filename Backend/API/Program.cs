@@ -84,8 +84,8 @@ app.UseForwardedHeaders();
                         if (!app.Environment.IsDevelopment())
                         {
                             modifiedJson = modifiedJson.Replace(
-                                "http://h4-demo-api.mercantec.tech", 
-                                "https://h4-demo-api.mercantec.tech");
+                                "http://h4-api.mercantec.tech", 
+                                "https://h4-api.mercantec.tech");
                         }
                         
                         var modifiedBytes = System.Text.Encoding.UTF8.GetBytes(modifiedJson);
