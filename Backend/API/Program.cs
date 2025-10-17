@@ -4,6 +4,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+// Configure forwarded headers for reverse proxy support (Cloudflare, nginx, etc.)
+builder.Services.Configure<Microsoft.AspNetCore.HttpOverrides.ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor 
+                             | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -14,7 +23,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFlutterApp", policy =>
     {
         policy.WithOrigins(
-                "https://h4-demo.mercantec.tech"
+                "https://h4-demo.mercantec.tech",
+                "https://h4-demo-api.mercantec.tech"  
             )
             .AllowAnyMethod()               // Allow GET, POST, PUT, DELETE, etc.
             .AllowAnyHeader()               // Allow any headers
@@ -47,6 +57,8 @@ app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 
+app.UseForwardedHeaders();
+
     app.MapOpenApi();
     
     // Enable Swagger UI (klassisk dokumentation)
@@ -65,7 +77,7 @@ app.MapDefaultEndpoints();
     });
 
 
-// Enable CORS - SKAL være før UseHttpsRedirection og UseAuthorization
+// Enable CORS - SKAL være før UseAuthorization
 if (app.Environment.IsDevelopment())
 {
     app.UseCors("AllowAllLocalhost");  
@@ -75,7 +87,7 @@ else
     app.UseCors("AllowFlutterApp");    
 }
 
-app.UseHttpsRedirection();
+// UseHttpsRedirection er fjernet - Cloudflare Tunnel/reverse proxy håndterer HTTPS
 
 app.UseAuthorization();
 
