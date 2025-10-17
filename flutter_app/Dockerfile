@@ -17,7 +17,6 @@ COPY assets/ ./assets/
 
 # Copy other necessary files
 COPY analysis_options.yaml ./
-COPY README.md ./
 
 # Build for web
 RUN flutter build web --release
