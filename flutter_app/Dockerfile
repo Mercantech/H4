@@ -14,7 +14,7 @@ RUN flutter pub get
 COPY . .
 
 # Build for web
-RUN flutter build web --release --web-renderer html
+RUN flutter build web --release
 
 # Stage 2: Create the run-time image
 FROM nginx:alpine
