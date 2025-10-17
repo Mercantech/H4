@@ -46,8 +46,7 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+
     app.MapOpenApi();
     
     // Enable Swagger UI (klassisk dokumentation)
@@ -64,7 +63,7 @@ if (app.Environment.IsDevelopment())
                .WithTheme(ScalarTheme.Purple)
                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
-}
+
 
 // Enable CORS - SKAL være før UseHttpsRedirection og UseAuthorization
 if (app.Environment.IsDevelopment())
