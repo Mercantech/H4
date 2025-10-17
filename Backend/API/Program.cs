@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFlutterApp", policy =>
     {
         policy.WithOrigins(
-                "https://domæne.mercantec.tech"
+                "https://h4-demo.mercantec.tech"
             )
             .AllowAnyMethod()               // Allow GET, POST, PUT, DELETE, etc.
             .AllowAnyHeader()               // Allow any headers
