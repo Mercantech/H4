@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
-import '../../../data/models/weather_forecast.dart';
+import '../../../domain/entities/weather_entity.dart';
 import '../model/chart_data.dart';
 
 /// Base class for alle Weather states
+/// 
+/// Bruger Equatable for automatisk equality comparison.
+/// Dette gør at BLoC kun rebuilder widgets når state faktisk ændrer sig.
 abstract class WeatherState extends Equatable {
   const WeatherState();
 
@@ -11,18 +14,27 @@ abstract class WeatherState extends Equatable {
 }
 
 /// Initial state når appen starter
+/// 
+/// Emitted når BLoC oprettes første gang.
 class WeatherInitial extends WeatherState {
   const WeatherInitial();
 }
 
-/// State når data bliver hentet
+/// Loading state
+/// 
+/// Emitted når data bliver hentet fra repository.
+/// UI kan vise loading spinner/skeleton.
 class WeatherLoading extends WeatherState {
   const WeatherLoading();
 }
 
-/// State når data er hentet succesfuldt
+/// Success state
+/// 
+/// Emitted når data er hentet succesfuldt fra repository.
+/// Indeholder WeatherEntity (domain layer) ikke Model (data layer).
+/// Dette holder UI uafhængig af data source detaljer.
 class WeatherLoaded extends WeatherState {
-  final List<WeatherForecast> weatherData;
+  final List<WeatherEntity> weatherData;
   final ChartData chartData;
 
   const WeatherLoaded({
@@ -34,7 +46,10 @@ class WeatherLoaded extends WeatherState {
   List<Object?> get props => [weatherData, chartData];
 }
 
-/// State når der opstår en fejl
+/// Error state
+/// 
+/// Emitted når der opstår en fejl i repository.
+/// Message er brugervenlig fejlbesked fra ApiException.userMessage.
 class WeatherError extends WeatherState {
   final String message;
 

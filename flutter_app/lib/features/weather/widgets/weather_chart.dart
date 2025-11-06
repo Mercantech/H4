@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../../data/models/weather_forecast.dart';
+import '../../../domain/entities/weather_entity.dart';
 import '../model/chart_data.dart';
 
 class WeatherChart extends StatelessWidget {
-  final List<WeatherForecast> forecasts;
+  final List<WeatherEntity> forecasts;
   final ChartData? chartData;
 
   const WeatherChart({
