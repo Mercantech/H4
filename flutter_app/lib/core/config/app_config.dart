@@ -20,6 +20,16 @@ class AppConfig {
   final bool enableApiLogging;
   final bool enableErrorLogging;
 
+  /// Aspire (AppHost) kan sende API endpoints ind via `--dart-define`.
+  ///
+  /// I `Backend.AppHost/AppHost.cs` bliver disse sat:
+  /// - API_URL_HTTP
+  /// - API_URL_HTTPS
+  ///
+  /// Når de findes, prioriterer vi dem over `Environment.*.apiBaseUrl`.
+  static const String _aspireApiUrlHttp = String.fromEnvironment('API_URL_HTTP');
+  static const String _aspireApiUrlHttps = String.fromEnvironment('API_URL_HTTPS');
+
   AppConfig._({
     required this.environment,
     required this.apiBaseUrl,
@@ -46,9 +56,10 @@ class AppConfig {
   /// await AppConfig.initialize(Environment.development);
   /// ```
   static Future<void> initialize(Environment env) async {
+    final resolvedApiBaseUrl = _resolveApiBaseUrl(env);
     _instance = AppConfig._(
       environment: env,
-      apiBaseUrl: env.apiBaseUrl,
+      apiBaseUrl: resolvedApiBaseUrl,
       apiTimeout: env.apiTimeout,
       enableApiLogging: env.enableApiLogging,
       enableErrorLogging: env.enableErrorLogging,
@@ -60,6 +71,37 @@ class AppConfig {
   
   /// Check om vi kører i production mode
   bool get isProduction => environment == Environment.production;
+
+  static String _resolveApiBaseUrl(Environment env) {
+    // Hvis vi kører under Aspire, får vi typisk et endpoint uden `/api`.
+    // Vi sikrer at URL'en ender på `/api`, så den matcher vores controller routes
+    // (fx `api/WeatherForecast`).
+    final aspireCandidate = _aspireApiUrlHttp.isNotEmpty
+        ? _aspireApiUrlHttp
+        : (_aspireApiUrlHttps.isNotEmpty ? _aspireApiUrlHttps : '');
+
+    if (aspireCandidate.isNotEmpty) {
+      return _ensureApiPath(aspireCandidate);
+    }
+
+    // Kører uden Aspire → fallback til eksisterende default.
+    return env.apiBaseUrl;
+  }
+
+  static String _ensureApiPath(String base) {
+    var normalized = base.trim();
+    // Fjern trailing slash så vi kan bygge konsistent.
+    while (normalized.endsWith('/')) {
+      normalized = normalized.substring(0, normalized.length - 1);
+    }
+
+    // Allerede korrekt?
+    if (normalized.toLowerCase().endsWith('/api')) {
+      return normalized;
+    }
+
+    return '$normalized/api';
+  }
 }
 
 /// Environment konfigurationer
