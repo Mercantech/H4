@@ -1,0 +1,57 @@
+# Dokploy: docker compose up -d --build
+#
+# Host(`h4.mercantec.tech`) → web:80 (nginx)
+# / → flutter, /api/ → api:8080
+services:
+  api:
+    build:
+      context: ./Backend
+      dockerfile: API/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Production
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://h4.mercantec.tech}
+    networks:
+      - internal
+
+  flutter:
+    build:
+      context: ./flutter_app
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    restart: unless-stopped
+    networks:
+      - internal
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    volumes:
+      - ./Docker/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+      - flutter
+    networks:
+      - internal
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.h4-web.rule=Host(`${APP_DOMAIN:-h4.mercantec.tech}`)
+      - traefik.http.routers.h4-web.entrypoints=web
+      - traefik.http.routers.h4-web.service=h4-web
+      - traefik.http.services.h4-web.loadbalancer.server.port=80
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  dokploy-network:
+    external: true
+  internal:
+    driver: bridge

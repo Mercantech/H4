@@ -1,0 +1,13 @@
+# Lokal: docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
+services:
+  web:
+    ports:
+      - "${LOCAL_WEB_PORT:-9091}:80"
+  api:
+    ports:
+      - "${LOCAL_API_PORT:-9090}:8080"
+
+networks:
+  dokploy-network:
+    external: false
+    name: h4-local

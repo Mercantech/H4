@@ -137,7 +137,7 @@ class Environment {
   /// Brug til deployed version af API
   static const production = Environment._(
     name: 'production',
-    apiBaseUrl: 'https://h4-api.mercantec.tech/api',
+    apiBaseUrl: 'https://h4.mercantec.tech/api',
     apiTimeout: 30000, // 30 sekunder
     enableApiLogging: false, // Slå logging fra i produktion for performance
     enableErrorLogging: true,
