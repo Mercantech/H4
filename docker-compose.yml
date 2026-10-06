@@ -17,8 +17,6 @@ services:
       - traefik.http.routers.h4-api.entrypoints=web
       - traefik.http.routers.h4-api.priority=100
       - traefik.http.routers.h4-api.service=h4-api
-      - traefik.http.routers.h4-api.middlewares=h4-api-strip
-      - traefik.http.middlewares.h4-api-strip.stripprefix.prefixes=/api
       - traefik.http.services.h4-api.loadbalancer.server.port=8080
 
   web:
