@@ -1,7 +1,5 @@
 # Dokploy: docker compose up -d --build
-#
-# Host(`h4.mercantec.tech`) → web:80 (nginx)
-# / → flutter, /api/ → api:8080
+# Host(`h4.mercantec.tech`) → web:80 · / → flutter · /api/ → api:8080
 services:
   api:
     build:
@@ -13,7 +11,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       CORS_ORIGINS: ${CORS_ORIGINS:-https://h4.mercantec.tech}
     networks:
-      - internal
+      - dokploy-network
 
   flutter:
     build:
@@ -23,7 +21,7 @@ services:
         - BUILDKIT_INLINE_CACHE=1
     restart: unless-stopped
     networks:
-      - internal
+      - dokploy-network
 
   web:
     image: nginx:1.27-alpine
@@ -34,7 +32,6 @@ services:
       - api
       - flutter
     networks:
-      - internal
       - dokploy-network
     labels:
       - traefik.enable=true
@@ -53,5 +50,3 @@ services:
 networks:
   dokploy-network:
     external: true
-  internal:
-    driver: bridge
