@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// App Configuration Manager
 /// 
 /// Håndterer environment-specifik konfiguration og giver nem adgang til
@@ -82,6 +84,18 @@ class AppConfig {
 
     if (aspireCandidate.isNotEmpty) {
       return _ensureApiPath(aspireCandidate);
+    }
+
+    // Web bag Traefik: samme host som API (`/api` PathPrefix) — undgå localhost
+    // og undgå afhængighed af at --dart-define rammer korrekt i Docker-build.
+    if (kIsWeb) {
+      final host = Uri.base.host.toLowerCase();
+      if (host.isNotEmpty &&
+          host != 'localhost' &&
+          host != '127.0.0.1' &&
+          host != '0.0.0.0') {
+        return _ensureApiPath(Uri.base.origin);
+      }
     }
 
     // Kører uden Aspire → fallback til eksisterende default.

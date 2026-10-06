@@ -24,7 +24,8 @@ services:
       context: ./flutter_app
       dockerfile: Dockerfile
       args:
-        - BUILDKIT_INLINE_CACHE=1
+        BUILDKIT_INLINE_CACHE: "1"
+        CACHEBUST: "${CACHEBUST:-1}"
     restart: unless-stopped
     labels:
       - traefik.enable=true

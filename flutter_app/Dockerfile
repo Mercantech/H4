@@ -1,34 +1,25 @@
 # Stage 1: Build Flutter web app
 FROM ghcr.io/cirruslabs/flutter:stable AS build-env
 
-# Set working directory
 WORKDIR /app
 
-# Copy pubspec files
 COPY pubspec.* ./
-
-# Get dependencies
 RUN flutter pub get
 
-# Copy source code (this layer will be invalidated when source changes)
 COPY lib/ ./lib/
 COPY web/ ./web/
 COPY assets/ ./assets/
-
-# Copy other necessary files
 COPY analysis_options.yaml ./
 
-# Build for web (production API: https://h4.mercantec.tech/api)
-RUN flutter build web --release --dart-define=APP_ENV=production
+# production: AppConfig bruger Uri.base.origin/api på ikke-localhost web.
+# dart-define beholdes som ekstra signal; PWA-SW slås fra så deploys ikke serverer gammel JS.
+ARG CACHEBUST=1
+RUN echo "cachebust=$CACHEBUST" \
+ && flutter build web --release --pwa-strategy=none --dart-define=APP_ENV=production
 
-# Stage 2: Create the run-time image
+# Stage 2: nginx
 FROM nginx:alpine
-
-# Copy the built web app
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build-env /app/build/web /usr/share/nginx/html
-
-# Expose port 80
 EXPOSE 80
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
