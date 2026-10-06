@@ -18,8 +18,8 @@ COPY assets/ ./assets/
 # Copy other necessary files
 COPY analysis_options.yaml ./
 
-# Build for web
-RUN flutter build web --release
+# Build for web (production API: https://h4.mercantec.tech/api)
+RUN flutter build web --release --dart-define=APP_ENV=production
 
 # Stage 2: Create the run-time image
 FROM nginx:alpine

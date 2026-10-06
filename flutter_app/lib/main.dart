@@ -20,10 +20,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 1. Initialisér App Configuration
-  // TODO: Skift til Environment.production når du deployer til produktion!
-  await AppConfig.initialize(Environment.development);
-  // await AppConfig.initialize(Environment.production);
-  
+  // Docker/prod: flutter build web --dart-define=APP_ENV=production
+  // Lokalt default: development → http://localhost:5000/api
+  const appEnv = String.fromEnvironment('APP_ENV', defaultValue: 'development');
+  final environment = switch (appEnv) {
+    'production' => Environment.production,
+    'staging' => Environment.staging,
+    _ => Environment.development,
+  };
+  await AppConfig.initialize(environment);
+
   // Log hvilket environment vi kører i
   debugPrint('🚀 Starting app in ${AppConfig.instance.environment.name} mode');
   debugPrint('📡 API Base URL: ${AppConfig.instance.apiBaseUrl}');
