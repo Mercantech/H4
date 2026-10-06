@@ -8,6 +8,6 @@ services:
       - "${LOCAL_API_PORT:-9090}:8080"
 
 networks:
-  dokploy-network:
-    external: false
+  default:
     name: h4-local
+    external: false

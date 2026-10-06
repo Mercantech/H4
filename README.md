@@ -14,4 +14,4 @@ docker compose up -d --build
 ```
 
 Lokalt: `docker compose -f docker-compose.yml -f docker-compose.local.yml up --build`  
-`web` (nginx) eksponeres via Traefik; Flutter og API kører internt (`/api` → backend).
+Ren Traefik: Flutter som `web`, API via `PathPrefix(/api)` — ingen host-ports i prod.

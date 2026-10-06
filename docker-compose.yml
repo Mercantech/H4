@@ -1,5 +1,5 @@
 # Dokploy: docker compose up -d --build
-# Host(`h4.mercantec.tech`) → web:80 · / → flutter · /api/ → api:8080
+# Ingen host-ports. Ren Traefik (PathPrefix til API).
 services:
   api:
     build:
@@ -10,43 +10,40 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Production
       CORS_ORIGINS: ${CORS_ORIGINS:-https://h4.mercantec.tech}
-    networks:
-      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      - traefik.http.routers.h4-api.rule=Host(`${APP_DOMAIN:-h4.mercantec.tech}`) && PathPrefix(`/api`)
+      - traefik.http.routers.h4-api.entrypoints=web
+      - traefik.http.routers.h4-api.priority=100
+      - traefik.http.routers.h4-api.service=h4-api
+      - traefik.http.routers.h4-api.middlewares=h4-api-strip
+      - traefik.http.middlewares.h4-api-strip.stripprefix.prefixes=/api
+      - traefik.http.services.h4-api.loadbalancer.server.port=8080
 
-  flutter:
+  web:
     build:
       context: ./flutter_app
       dockerfile: Dockerfile
       args:
         - BUILDKIT_INLINE_CACHE=1
     restart: unless-stopped
-    networks:
-      - dokploy-network
-
-  web:
-    image: nginx:1.27-alpine
-    restart: unless-stopped
-    volumes:
-      - ./Docker/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - api
-      - flutter
-    networks:
-      - dokploy-network
     labels:
       - traefik.enable=true
       - traefik.docker.network=dokploy-network
       - traefik.http.routers.h4-web.rule=Host(`${APP_DOMAIN:-h4.mercantec.tech}`)
       - traefik.http.routers.h4-web.entrypoints=web
+      - traefik.http.routers.h4-web.priority=1
       - traefik.http.routers.h4-web.service=h4-web
       - traefik.http.services.h4-web.loadbalancer.server.port=80
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
 
 networks:
-  dokploy-network:
+  default:
+    name: dokploy-network
     external: true
